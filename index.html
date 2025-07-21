@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wallet Balance</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #333;
+    }
+
+    .header-container {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 1.8em;
+      margin: 0;
+    }
+
+    .share-icon {
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 1.4em;
+      cursor: pointer;
+      color: #666;
+      padding: 8px;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+
+    .share-icon:hover {
+      background: #f0f0f0;
+    }
+
+    #supporter-count {
+      margin-top: 8px;
+      background: #ffdd57;
+      color: #333;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 0.85em;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .wallets-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 400px;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    .wallet {
+      background: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      position: relative;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+    }
+
+    .balance {
+      font-size: 1.3em;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .copy-circle {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px auto 0;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .copy-circle:hover {
+      background: #ddd;
+    }
+
+    .btc-icon, .eth-icon {
+      font-size: 20px;
+      color: #343434;
+    }
+
+    .tooltip {
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(240, 240, 240, 0.95);
+      color: #333;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 0.7em;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: opacity 0.2s;
+    }
+
+    .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 4px;
+      border-style: solid;
+      border-color: rgba(240,240,240,0.95) transparent transparent transparent;
+    }
+
+    .copy-circle:hover .tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .copied-msg {
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75em;
+      color: #444;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .info {
+      max-width: 400px;
+      margin-top: 25px;
+      font-size: 0.95em;
+      color: #444;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 1.4em;
+      margin: 30px 0 15px;
+      color: #333;
+    }
+
+    .supporters {
+      max-width: 400px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .supporter-card {
+      background: #f9f9f9;
+      padding: 8px 14px;
+      border-radius: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      font-size: 0.9em;
+      white-space: nowrap;
+      transition: all 0.3s;
+    }
+
+    .contact-circle {
+      margin-top: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      transition: background 0.2s;
+    }
+
+    .contact-circle:hover {
+      background: #ddd;
+    }
+
+    .contact-circle svg {
+      fill: #000;
+      width: 20px;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header-container">
+  <div class="header">
+    <img src="brian-mccall-QhiA6DdlgiM-unsplash.jpg" alt="Profile picture">
+    <h1>Wallet</h1>
+  </div>
+  <i class="fas fa-share-alt share-icon" onclick="sharePage()" title="Share this page"></i>
+  <div id="supporter-count">Loading supporter count...</div>
+</div>
+
+<div class="wallets-container">
+  <div class="wallet">
+    <div class="balance" id="btcBalance">Loading...</div>
+    <div>Bitcoin</div>
+    <div class="copy-circle" onclick="copyAddress(this)" data-address="bc1qjtgfw6dythprkvmkps7dmfm7dkkhtgy76q02ep">
+      <div class="tooltip">Copy Bitcoin address</div>
+      <i class="fab fa-btc btc-icon"></i>
+    </div>
+    <div class="copied-msg">Copied!</div>
+  </div>
+
+  <div class="wallet">
+    <div class="balance" id="ethBalance">Loading...</div>
+    <div>Ethereum</div>
+    <div class="copy-circle" onclick="copyAddress(this)" data-address="0xb96e27d05fe60a24a01a7672e7d3effc3bdb3d7e">
+      <div class="tooltip">Copy Ethereum address</div>
+      <i class="fab fa-ethereum eth-icon"></i>
+    </div>
+    <div class="copied-msg">Copied!</div>
+  </div>
+</div>
+
+<p class="info">
+  Contributions to this wallet support and grow businesses.
+</p>
+
+<h2>Recent Supporters</h2>
+<div class="supporters" id="supporters">
+  <div class="supporter-card">Loading supporters...</div>
+</div>
+
+<p class="info">
+  Interested in what I've built here? Send me a message on X.
+</p>
+
+<div class="contact-circle">
+  <a href="https://x.com/qazwsxz12" target="_blank">
+    <svg viewBox="0 0 24 24">
+      <path d="M4.5 3h4.9l3.6 5.2 3.6-5.2h4.9l-6.5 9.3 7 10.7h-5l-4.5-6.7-4.5 6.7h-5l7-10.7-6.5-9.3z"/>
+    </svg>
+  </a>
+</div>
+
+<script>
+function copyAddress(el) {
+  navigator.clipboard.writeText(el.getAttribute("data-address")).then(() => {
+    const msg = el.parentElement.querySelector('.copied-msg');
+    msg.style.opacity = 1;
+    setTimeout(() => msg.style.opacity = 0, 800);
+  });
+}
+
+function sharePage() {
+  const shareData = {
+    title: document.title,
+    text: 'Check out this crypto wallet!',
+    url: window.location.href
+  };
+  if (navigator.share) {
+    navigator.share(shareData).catch(console.error);
+  } else {
+    alert("Sharing not supported by your browser.");
+  }
+}
+
+function formatBalance(val) {
+  return parseFloat(val).toPrecision(6).replace(/\.?0+$/, '');
+}
+
+function updateWalletData() {
+  let prices = {};
+  fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd')
+    .then(res => res.json())
+    .then(data => {
+      prices.btc = data.bitcoin.usd;
+      prices.eth = data.ethereum.usd;
+
+      fetch(`https://blockchain.info/q/addressbalance/bc1qjtgfw6dythprkvmkps7dmfm7dkkhtgy76q02ep?confirmations=3`)
+        .then(res => res.text())
+        .then(sats => {
+          const btc = parseInt(sats) / 1e8;
+          document.getElementById("btcBalance").textContent =
+            `${formatBalance(btc)} BTC ≈ $${(btc * prices.btc).toFixed(2)}`;
+        });
+
+      fetch(`https://api.etherscan.io/api?module=account&action=balance&address=0xb96e27d05fe60a24a01a7672e7d3effc3bdb3d7e&tag=latest&apikey=7HQVBFNBCEAYW31Z1B9V7W7G56KPR2XECW`)
+        .then(res => res.json())
+        .then(data => {
+          const eth = parseInt(data.result) / 1e18;
+          document.getElementById("ethBalance").textContent =
+            `${formatBalance(eth)} ETH ≈ $${(eth * prices.eth).toFixed(2)}`;
+        });
+
+      Promise.all([
+        fetch(`https://blockchain.info/rawaddr/bc1qjtgfw6dythprkvmkps7dmfm7dkkhtgy76q02ep`).then(r => r.json()).catch(() => null),
+        fetch(`https://api.etherscan.io/api?module=account&action=txlist&address=0xb96e27d05fe60a24a01a7672e7d3effc3bdb3d7e&sort=desc&apikey=7HQVBFNBCEAYW31Z1B9V7W7G56KPR2XECW`)
+          .then(r => r.json()).catch(() => null)
+      ]).then(([btcData, ethData]) => {
+        let supporters = [];
+        if (btcData && btcData.txs) {
+          btcData.txs.forEach(tx => {
+            tx.inputs.forEach(inp => {
+              let val = inp.prev_out.value / 1e8;
+              supporters.push({
+                address: inp.prev_out.addr,
+                amount: `${formatBalance(val)} BTC`
+              });
+            });
+          });
+        }
+        if (ethData && ethData.result) {
+          ethData.result.forEach(tx => {
+            if (tx.to.toLowerCase() === "0xb96e27d05fe60a24a01a7672e7d3effc3bdb3d7e") {
+              let val = parseInt(tx.value) / 1e18;
+              supporters.push({
+                address: tx.from,
+                amount: `${formatBalance(val)} ETH`
+              });
+            }
+          });
+        }
+
+        const uniqueSupporters = new Set(supporters.map(s => s.address));
+        document.getElementById("supporter-count").textContent =
+          `❤️ ${uniqueSupporters.size} supporter${uniqueSupporters.size !== 1 ? 's' : ''}`;
+
+        const container = document.getElementById("supporters");
+        container.innerHTML = "";
+        if (supporters.length) {
+          supporters.slice(0, 4).forEach(sup => {
+            const card = document.createElement("div");
+            card.className = "supporter-card";
+            card.textContent = `${sup.address.slice(0, 6)}...${sup.address.slice(-4)} tipped ${sup.amount}`;
+            container.appendChild(card);
+          });
+        } else {
+          container.innerHTML = `<div class="supporter-card">No recent supporters yet.</div>`;
+        }
+      });
+    });
+}
+
+updateWalletData();
+setInterval(updateWalletData, 60000);
+</script>
+
+</body>
+</html>
