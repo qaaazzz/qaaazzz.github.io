@@ -1,15 +1,14 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🚀 Wallet</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      margin: 0; padding: 0; box-sizing: border-box;
     }
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -35,8 +34,7 @@
       margin-bottom: 25px;
     }
     .header img {
-      width: 60px;
-      height: 60px;
+      width: 60px; height: 60px;
       border-radius: 50%;
       object-fit: cover;
     }
@@ -83,7 +81,6 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      position: relative;
     }
     .wallet i {
       font-size: 1.5em;
@@ -117,7 +114,6 @@
       text-align: center;
       margin-top: 25px;
     }
-        
     .contact-circle {
       margin: 30px auto 0;
       width: 50px;
@@ -127,20 +123,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      transition: background 0.2s;
     }
-
-    .contact-circle:hover {
-      background: #ddd;
-    }
-
     .contact-circle svg {
       fill: #000;
       width: 20px;
       height: 20px;
     }
-    
+
+    /* Dark Mode */
     body.dark-mode {
       background: #121212;
       color: #e0e0e0;
@@ -165,25 +155,77 @@
     body.dark-mode .share-icon {
       color: #bbb;
     }
-    
     body.dark-mode #supporter-count {
-  background: #2a2a2a;
-  color: #ddd;
-   }
-    
+      background: #2a2a2a;
+      color: #ddd;
+    }
+
+    /* Chart Tracker Styles */
+    .tracker-section {
+      background: #000;
+      border-radius: 16px;
+      padding: 20px;
+      color: #fff;
+      margin-top: 30px;
+    }
+    .tracker-header {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .time-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+    .time-buttons button {
+      background: #222;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      color: #ccc;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .time-buttons button.active {
+      background: #0f0;
+      color: #000;
+      font-weight: bold;
+    }
+    canvas {
+      width: 100% !important;
+      height: 200px !important;
+    }
+    body:not(.dark-mode) .tracker-section {
+      background: #f4f4f4;
+      color: #111;
+    }
+    body:not(.dark-mode) .time-buttons button {
+      background: #ddd;
+      color: #000;
+    }
+    body:not(.dark-mode) .time-buttons button.active {
+      background: #0c0;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
+
 <div class="container">
   <div class="header">
-    <img src="brian-mccall-QhiA6DdlgiM-unsplash.jpg" alt="Profile">
+    <img src="brian-mccall-QhiA6DdlgiM-unsplash.jpg" alt="Profile" />
     <h1>Wallet</h1>
     <i class="fas fa-share-alt share-icon" onclick="sharePage()"></i>
     <i class="fas fa-moon share-icon" id="darkToggle" title="Toggle dark mode"></i>
-  </div>  <div class="balance">
+  </div>
+
+  <div class="balance">
     <div id="total-usd">Loading...</div>
     <div id="supporter-count">Loading supporters...</div>
-  </div>  <div class="wallets">
+  </div>
+
+  <div class="wallets">
     <div class="wallet">
       <div class="copy-circle" onclick="copyAddress(this)" data-address="bc1qjtgfw6dythprkvmkps7dmfm7dkkhtgy76q02ep">
         <i class="fab fa-btc"></i>
@@ -196,31 +238,39 @@
       </div>
       <div class="copied-msg">Copied!</div>
     </div>
-  </div>  <div class="supporters-section">
+  </div>
+
+  <div class="supporters-section">
     <h2>Recent Supporters</h2>
     <div class="supporters" id="supporters">
       <div class="supporter-card">Loading...</div>
     </div>
-    
     <p class="info">Contributions to this wallet support and grow startups.</p>
-  
-<div class="contact-circle">
-  <a href="https://x.com/qazwsxz12" target="_blank">
-    <svg viewBox="0 0 24 24">
-      <path d="M4.5 3h4.9l3.6 5.2 3.6-5.2h4.9l-6.5 9.3 7 10.7h-5l-4.5-6.7-4.5 6.7h-5l7-10.7-6.5-9.3z"/>
-    </svg>
-  </a>
-</div>
-</div><script>
-  
-  const toggle = document.getElementById('darkToggle');
+  </div>
 
-  // Load saved preference on page load
+  <div class="tracker-section">
+    <div class="tracker-header">Your Balance</div>
+    <div class="time-buttons">
+      <button class="active" onclick="updateChart('1M')">1M</button>
+      <button onclick="updateChart('6M')">6M</button>
+      <button onclick="updateChart('1Y')">1Y</button>
+    </div>
+    <canvas id="balanceChart"></canvas>
+  </div>
+
+  <div class="contact-circle">
+    <a href="https://x.com/qazwsxz12" target="_blank">
+      <svg viewBox="0 0 24 24"><path d="M4.5 3h4.9l3.6 5.2 3.6-5.2h4.9l-6.5 9.3 7 10.7h-5l-4.5-6.7-4.5 6.7h-5l7-10.7-6.5-9.3z"/></svg>
+    </a>
+  </div>
+</div>
+
+<script>
+  const toggle = document.getElementById('darkToggle');
   if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-mode');
     toggle.classList.replace('fa-moon', 'fa-sun');
   }
-
   toggle.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
@@ -229,86 +279,127 @@
     toggle.classList.toggle('fa-moon');
   });
 
-  
-function copyAddress(el) {
-  navigator.clipboard.writeText(el.getAttribute("data-address")).then(() => {
-    const msg = el.parentElement.querySelector('.copied-msg');
-    msg.style.opacity = 1;
-    setTimeout(() => msg.style.opacity = 0, 1000);
-  });
-}
-
-function sharePage() {
-  const shareData = {
-    title: document.title,
-    text: 'Support this wallet project!',
-    url: window.location.href
-  };
-  if (navigator.share) {
-    navigator.share(shareData).catch(console.error);
-  } else {
-    alert("Sharing not supported on this device.");
+  function copyAddress(el) {
+    navigator.clipboard.writeText(el.getAttribute("data-address")).then(() => {
+      const msg = el.parentElement.querySelector('.copied-msg');
+      msg.style.opacity = 1;
+      setTimeout(() => msg.style.opacity = 0, 1000);
+    });
   }
-}
 
-const ETHERSCAN_API_KEY = "7HQVBFNBCEAYW31Z1B9V7W7G56KPR2XECW";
-
-async function fetchTotalBalance() {
-  const btcAddr = "bc1qjtgfw6dythprkvmkps7dmfm7dkkhtgy76q02ep";
-  const ethAddr = "0xb96e27d05fe60a24a01a7672e7d3effc3bdb3d7e";
-
-  try {
-    const [btcRes, ethRes, priceRes] = await Promise.all([
-      fetch(`https://blockstream.info/api/address/${btcAddr}`),
-      fetch(`https://api.etherscan.io/api?module=account&action=balance&address=${ethAddr}&tag=latest&apikey=${ETHERSCAN_API_KEY}`),
-      fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd")
-    ]);
-
-    const btcData = await btcRes.json();
-    const ethData = await ethRes.json();
-    const priceData = await priceRes.json();
-
-    const btcBalance = (btcData.chain_stats.funded_txo_sum - btcData.chain_stats.spent_txo_sum) / 1e8;
-    const ethBalance = parseFloat(ethData.result) / 1e18;
-
-    const totalUSD = (btcBalance * priceData.bitcoin.usd) + (ethBalance * priceData.ethereum.usd);
-    document.getElementById("total-usd").textContent = `US$ ${totalUSD}`;
-  } catch (e) {
-    document.getElementById("total-usd").textContent = "Error fetching balance";
+  function sharePage() {
+    const shareData = {
+      title: document.title,
+      text: 'Support this wallet project!',
+      url: window.location.href
+    };
+    if (navigator.share) {
+      navigator.share(shareData).catch(console.error);
+    } else {
+      alert("Sharing not supported on this device.");
+    }
   }
-}
 
-async function fetchSupporters() {
-  const btcAddr = "bc1qjtgfw6dythprkvmkps7dmfm7dkkhtgy76q02ep";
-  const ethAddr = "0xb96e27d05fe60a24a01a7672e7d3effc3bdb3d7e";
+  const ETHERSCAN_API_KEY = "7HQVBFNBCEAYW31Z1B9V7W7G56KPR2XECW";
 
-  try {
-    const [btcTx, ethTx] = await Promise.all([
-      fetch(`https://blockstream.info/api/address/${btcAddr}/txs`),
-      fetch(`https://api.etherscan.io/api?module=account&action=txlist&address=${ethAddr}&sort=desc&apikey=${ETHERSCAN_API_KEY}`)
-    ]);
-
-    const btcSenders = (await btcTx.json()).flatMap(tx =>
-      tx.vin.map(input => input.prevout?.scriptpubkey_address)).filter(Boolean);
-    const ethSenders = (await ethTx.json()).result.map(tx => tx.from);
-
-    const allSenders = [...btcSenders, ...ethSenders];
-    const uniqueSenders = [...new Set(allSenders)];
-    const recent = uniqueSenders.slice(0, 5);
-
-    document.getElementById("supporter-count").textContent = `${uniqueSenders.length} supporter${uniqueSenders.length !== 1 ? 's' : ''}`;
-    document.getElementById("supporters").innerHTML = recent.map(addr =>
-      `<div class="supporter-card">${addr}</div>`).join('');
-  } catch {
-    document.getElementById("supporters").innerHTML = '<div class="supporter-card">Error loading supporters</div>';
+  async function fetchTotalBalance() {
+    const btcAddr = "bc1qjtgfw6dythprkvmkps7dmfm7dkkhtgy76q02ep";
+    const ethAddr = "0xb96e27d05fe60a24a01a7672e7d3effc3bdb3d7e";
+    try {
+      const [btcRes, ethRes, priceRes] = await Promise.all([
+        fetch(`https://blockstream.info/api/address/${btcAddr}`),
+        fetch(`https://api.etherscan.io/api?module=account&action=balance&address=${ethAddr}&tag=latest&apikey=${ETHERSCAN_API_KEY}`),
+        fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd")
+      ]);
+      const btcData = await btcRes.json();
+      const ethData = await ethRes.json();
+      const priceData = await priceRes.json();
+      const btcBalance = (btcData.chain_stats.funded_txo_sum - btcData.chain_stats.spent_txo_sum) / 1e8;
+      const ethBalance = parseFloat(ethData.result) / 1e18;
+      const totalUSD = (btcBalance * priceData.bitcoin.usd) + (ethBalance * priceData.ethereum.usd);
+      document.getElementById("total-usd").textContent = `US$ ${totalUSD.toFixed(2)}`;
+    } catch (e) {
+      document.getElementById("total-usd").textContent = "Error fetching balance";
+    }
   }
-}
 
-fetchTotalBalance();
-fetchSupporters();
-setInterval(() => {
+  async function fetchSupporters() {
+    const btcAddr = "bc1qjtgfw6dythprkvmkps7dmfm7dkkhtgy76q02ep";
+    const ethAddr = "0xb96e27d05fe60a24a01a7672e7d3effc3bdb3d7e";
+    try {
+      const [btcTx, ethTx] = await Promise.all([
+        fetch(`https://blockstream.info/api/address/${btcAddr}/txs`),
+        fetch(`https://api.etherscan.io/api?module=account&action=txlist&address=${ethAddr}&sort=desc&apikey=${ETHERSCAN_API_KEY}`)
+      ]);
+      const btcSenders = (await btcTx.json()).flatMap(tx =>
+        tx.vin.map(input => input.prevout?.scriptpubkey_address)).filter(Boolean);
+      const ethSenders = (await ethTx.json()).result.map(tx => tx.from);
+      const allSenders = [...btcSenders, ...ethSenders];
+      const uniqueSenders = [...new Set(allSenders)].slice(0, 5);
+      document.getElementById("supporter-count").textContent = `${uniqueSenders.length} supporter${uniqueSenders.length !== 1 ? 's' : ''}`;
+      document.getElementById("supporters").innerHTML = uniqueSenders.map(addr =>
+        `<div class="supporter-card">${addr}</div>`).join('');
+    } catch {
+      document.getElementById("supporters").innerHTML = '<div class="supporter-card">Error loading supporters</div>';
+    }
+  }
+
   fetchTotalBalance();
   fetchSupporters();
-}, 300000); // every 5 minutes
-</script></body>
+  setInterval(() => {
+    fetchTotalBalance();
+    fetchSupporters();
+  }, 300000);
+
+  // Chart Tracker
+  const ctx = document.getElementById('balanceChart').getContext('2d');
+  let balanceChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ["1", "5", "10", "15", "20", "25", "30"],
+      datasets: [{
+        label: 'Balance',
+        data: [3, 5, 6, 4, 7, 8, 10],
+        backgroundColor: '#00ff00cc',
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          ticks: { color: '#aaa' },
+          grid: { display: false }
+        },
+        y: {
+          ticks: { color: '#aaa' },
+          grid: { color: '#333' }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#000',
+          titleColor: '#0f0',
+          bodyColor: '#fff'
+        }
+      }
+    }
+  });
+
+  function updateChart(period) {
+    document.querySelectorAll('.time-buttons button').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    const datasets = {
+      "1M": [3, 5, 6, 4, 7, 8, 10],
+      "6M": [4, 6, 5, 9, 7, 10],
+      "1Y": [2, 4, 3, 5, 6, 8, 7, 9, 10, 11, 10, 9]
+    };
+    const labels = datasets[period].map((_, i) => `${i + 1}`);
+    balanceChart.data.labels = labels;
+    balanceChart.data.datasets[0].data = datasets[period];
+    balanceChart.update();
+  }
+</script>
+</body>
 </html>
