@@ -141,6 +141,35 @@
       height: 20px;
     }
     
+    body.dark-mode {
+      background: #121212;
+      color: #e0e0e0;
+    }
+    body.dark-mode .container {
+      background: #1e1e1e;
+      box-shadow: 0 4px 20px rgba(255,255,255,0.05);
+    }
+    body.dark-mode .copy-circle,
+    body.dark-mode .contact-circle {
+      background: #2e2e2e;
+    }
+    body.dark-mode .contact-circle:hover {
+      background: #3a3a3a;
+    }
+    body.dark-mode .copied-msg {
+      color: #4caf50;
+    }
+    body.dark-mode .supporter-card {
+      background: #2a2a2a;
+    }
+    body.dark-mode .share-icon {
+      color: #bbb;
+    }
+    
+    body.dark-mode #supporter-count {
+  background: #2a2a2a;
+  color: #ddd;
+   }
     
   </style>
 </head>
@@ -150,6 +179,7 @@
     <img src="brian-mccall-QhiA6DdlgiM-unsplash.jpg" alt="Profile">
     <h1>Wallet</h1>
     <i class="fas fa-share-alt share-icon" onclick="sharePage()"></i>
+    <i class="fas fa-moon share-icon" id="darkToggle" title="Toggle dark mode"></i>
   </div>  <div class="balance">
     <div id="total-usd">Loading...</div>
     <div id="supporter-count">Loading supporters...</div>
@@ -182,6 +212,24 @@
   </a>
 </div>
 </div><script>
+  
+  const toggle = document.getElementById('darkToggle');
+
+  // Load saved preference on page load
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    toggle.classList.replace('fa-moon', 'fa-sun');
+  }
+
+  toggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    toggle.classList.toggle('fa-sun');
+    toggle.classList.toggle('fa-moon');
+  });
+
+  
 function copyAddress(el) {
   navigator.clipboard.writeText(el.getAttribute("data-address")).then(() => {
     const msg = el.parentElement.querySelector('.copied-msg');
