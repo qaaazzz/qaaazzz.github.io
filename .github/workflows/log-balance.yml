@@ -1,63 +1,37 @@
-const fs = require('fs');
-const axios = require('axios');
+name: Log Wallet Balance
 
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
-const ETH_ADDRESS = process.env.ETH_ADDRESS;
-const BTC_ADDRESS = process.env.BTC_ADDRESS;
+on:
+  schedule:
+    - cron: '0 * * * *'  # Every hour
+  workflow_dispatch:      # Allow manual trigger
 
-async function getETHBalance() {
-  const url = `https://api.etherscan.io/api?module=account&action=balance&address=${ETH_ADDRESS}&tag=latest&apikey=${ETHERSCAN_API_KEY}`;
-  const res = await axios.get(url);
-  return parseFloat(res.data.result) / 1e18;
-}
+jobs:
+  update-balance-log:
+    runs-on: ubuntu-latest
 
-async function getBTCBalance() {
-  const url = `https://blockstream.info/api/address/${BTC_ADDRESS}`;
-  const res = await axios.get(url);
-  const funded = res.data.chain_stats.funded_txo_sum;
-  const spent = res.data.chain_stats.spent_txo_sum;
-  return (funded - spent) / 1e8;
-}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-async function getPrices() {
-  const url = `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd`;
-  const res = await axios.get(url);
-  return {
-    eth: res.data.ethereum.usd,
-    btc: res.data.bitcoin.usd
-  };
-}
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-async function main() {
-  const eth = await getETHBalance();
-  const btc = await getBTCBalance();
-  const prices = await getPrices();
+      - name: Install dependencies
+        run: npm install axios fs
 
-  const totalUSD = eth * prices.eth + btc * prices.btc;
-  const timestamp = new Date().toISOString();
+      - name: Run balance logger
+        run: node .github/scripts/log-balance.js
+        env:
+          ETH_ADDRESS: 0xb96e27d05fe60a24a01a7672e7d3effc3bdb3d7e
+          BTC_ADDRESS: bc1qjtgfw6dythprkvmkps7dmfm7dkkhtgy76q02ep
+          ETHERSCAN_API_KEY: 7HQVBFNBCEAYW31Z1B9V7W7G56KPR2XECW
 
-  const entry = {
-    timestamp,
-    eth: eth.toFixed(6),
-    btc: btc.toFixed(6),
-    usd: totalUSD.toFixed(2)
-  };
-
-  let history = [];
-  try {
-    const data = fs.readFileSync('balance-history.json', 'utf8');
-    history = JSON.parse(data);
-  } catch (e) {
-    console.log('Creating new balance-history.json');
-  }
-
-  history.push(entry);
-
-  fs.writeFileSync('balance-history.json', JSON.stringify(history, null, 2));
-  console.log('✅ Balance logged at', timestamp);
-}
-
-main().catch(err => {
-  console.error('❌ Error:', err);
-  process.exit(1);
-});
+      - name: Commit and push log
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@users.noreply.github.com'
+          git add balance-history.json
+          git commit -m "Update balance log"
+          git push
